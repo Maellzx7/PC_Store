@@ -1,25 +1,32 @@
 <?php
 require_once 'config/database.php';
 
-$database = new Database();
-$db = $database->getConnection();
+try {
+    $database = new Database();
+    $db = $database->getConnection();
 
-// Buscar produtos em destaque
-$query = "SELECT p.*, c.name as category_name 
-          FROM products p 
-          LEFT JOIN categories c ON p.category_id = c.id 
-          WHERE p.status = 'active' 
-          ORDER BY p.created_at DESC 
-          LIMIT 8";
-$stmt = $db->prepare($query);
-$stmt->execute();
-$featured_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Buscar produtos em destaque
+    $query = "SELECT p.*, c.name as category_name 
+              FROM products p 
+              LEFT JOIN categories c ON p.category_id = c.id 
+              WHERE p.status = 'active' 
+              ORDER BY p.created_at DESC 
+              LIMIT 8";
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $featured_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Buscar categorias
-$query = "SELECT * FROM categories ORDER BY name";
-$stmt = $db->prepare($query);
-$stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Buscar categorias
+    $query = "SELECT * FROM categories ORDER BY name";
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+} catch (Exception $e) {
+    error_log("Erro na página inicial: " . $e->getMessage());
+    $featured_products = [];
+    $categories = [];
+}
 ?>
 
 <!DOCTYPE html>
@@ -249,11 +256,29 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             position: relative;
+            cursor: pointer;
         }
 
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .product-card:hover::after {
+            opacity: 1;
         }
 
         .product-image {
@@ -266,6 +291,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 3rem;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.05);
         }
 
         .product-image::before {
@@ -288,6 +319,20 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
             color: #333;
             margin-bottom: 0.5rem;
+        }
+
+        .product-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .product-title a:hover {
+            color: #667eea;
+        }
+
+        .product-card:hover .product-title a {
+            color: #667eea;
         }
 
         .product-category {
@@ -466,11 +511,17 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="products-grid">
                     <?php foreach ($featured_products as $product): ?>
                         <div class="product-card">
-                            <div class="product-image">
-                                <i class="fas fa-desktop"></i>
-                            </div>
+                            <a href="product.php?id=<?= $product['id'] ?>" style="text-decoration: none;">
+                                <div class="product-image">
+                                    <i class="fas fa-desktop"></i>
+                                </div>
+                            </a>
                             <div class="product-info">
-                                <h3 class="product-title"><?= htmlspecialchars($product['name']) ?></h3>
+                                <h3 class="product-title">
+                                    <a href="product.php?id=<?= $product['id'] ?>" style="text-decoration: none; color: inherit;">
+                                        <?= htmlspecialchars($product['name']) ?>
+                                    </a>
+                                </h3>
                                 <p class="product-category"><?= htmlspecialchars($product['category_name']) ?></p>
                                 <div class="product-price">R$ <?= number_format($product['price'], 2, ',', '.') ?></div>
                                 <div class="product-actions">
@@ -478,7 +529,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <i class="fas fa-cart-plus"></i> Carrinho
                                     </button>
                                     <a href="product.php?id=<?= $product['id'] ?>" class="btn btn-outline btn-small">
-                                        <i class="fas fa-eye"></i> Ver
+                                        <i class="fas fa-eye"></i> Ver Detalhes
                                     </a>
                                 </div>
                             </div>
@@ -543,6 +594,26 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // Carregar contador do carrinho ao iniciar a página
         document.addEventListener('DOMContentLoaded', function() {
             updateCartCount();
+            
+            // Adicionar indicador visual de que os produtos são clicáveis
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.cursor = 'pointer';
+                });
+                
+                // Adicionar clique no card inteiro (exceto nos botões)
+                card.addEventListener('click', function(e) {
+                    // Não executar se clicou em um botão
+                    if (e.target.closest('.btn') || e.target.closest('button')) {
+                        return;
+                    }
+                    
+                    const productLink = this.querySelector('.product-title a');
+                    if (productLink) {
+                        window.location.href = productLink.href;
+                    }
+                });
+            });
         });
     </script>
 </body>
