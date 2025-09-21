@@ -450,17 +450,22 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(5px);
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 0 auto;
             padding: 0;
             border-radius: 15px;
             width: 90%;
-            max-width: 600px;
+            max-width: 700px;
+            max-height: 90vh;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             animation: modalSlide 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes modalSlide {
@@ -469,18 +474,45 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .modal-header {
-            padding: 2rem 2rem 0;
+            padding: 2rem 2rem 1rem;
             border-bottom: 1px solid #ecf0f1;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
         }
 
         .modal-title {
             color: #2c3e50;
             font-size: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .modal-body {
             padding: 2rem;
+            max-height: calc(90vh - 200px);
+            overflow-y: auto;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
 
         .form-grid {
@@ -516,8 +548,9 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .form-group textarea {
-            min-height: 100px;
+            min-height: 80px;
             resize: vertical;
+            max-height: 120px;
         }
 
         .form-actions {
@@ -574,6 +607,47 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                max-height: 95vh;
+                margin: 2.5vh auto;
+            }
+            
+            .modal-body {
+                max-height: calc(95vh - 160px);
+            }
+            
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 98%;
+                max-height: 98vh;
+                margin: 1vh auto;
+                border-radius: 10px;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .form-actions {
+                padding: 1.5rem;
+            }
+            
+            .modal-body {
+                max-height: calc(98vh - 140px);
+            }
+            
+            .modal-title {
+                font-size: 1.3rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1.5rem;
             }
         }
     </style>
@@ -753,8 +827,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div id="productModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Adicionar Produto</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 class="modal-title" id="modalTitle">
+                    Adicionar Produto
+                    <button type="button" class="close" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </h2>
             </div>
             <div class="modal-body">
                 <form method="POST" id="productForm">
@@ -797,23 +875,23 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="form-group full-width">
                             <label for="image_url">URL da Imagem</label>
-                            <input type="url" id="image_url" name="image_url">
+                            <input type="url" id="image_url" name="image_url" placeholder="https://exemplo.com/imagem.jpg">
                         </div>
 
-                        
                         <div class="form-group full-width">
                             <label for="description">Descrição *</label>
-                            <textarea id="description" name="description" required></textarea>
+                            <textarea id="description" name="description" required placeholder="Descreva o produto..."></textarea>
                         </div>
                     </div>
-<div class="form-actions">
-                        <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Salvar
-                    
-                        </button>
-                    </div>
                 </form>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="submit" form="productForm" class="btn btn-success">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
             </div>
         </div>
     </div>
@@ -829,17 +907,23 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('statusGroup').style.display = action === 'edit' ? 'block' : 'none';
             
             if (action === 'add') {
-                title.textContent = 'Adicionar Produto';
+                title.innerHTML = 'Adicionar Produto <button type="button" class="close" onclick="closeModal()"><i class="fas fa-times"></i></button>';
                 document.getElementById('productId').value = '';
             }
             
             modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Impede scroll do body
+            
+            // Foco no primeiro campo
+            setTimeout(() => {
+                document.getElementById('name').focus();
+            }, 100);
         }
 
         function editProduct(product) {
             openModal('edit');
             
-            document.getElementById('modalTitle').textContent = 'Editar Produto';
+            document.getElementById('modalTitle').innerHTML = 'Editar Produto <button type="button" class="close" onclick="closeModal()"><i class="fas fa-times"></i></button>';
             document.getElementById('productId').value = product.id;
             document.getElementById('name').value = product.name;
             document.getElementById('description').value = product.description;
@@ -851,10 +935,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function closeModal() {
-            document.getElementById('productModal').style.display = 'none';
+            const modal = document.getElementById('productModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaura scroll do body
         }
 
-        // Close modal when clicking outside
+        // Fechar modal clicando fora
         window.onclick = function(event) {
             const modal = document.getElementById('productModal');
             if (event.target == modal) {
@@ -862,11 +948,56 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        // Auto-submit filters
+        // Fechar modal com ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Auto-submit filtros
         document.querySelectorAll('#search, #category, #status').forEach(element => {
             element.addEventListener('change', function() {
                 this.form.submit();
             });
+        });
+
+        // Validação do formulário
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            const price = parseFloat(document.getElementById('price').value);
+            const stock = parseInt(document.getElementById('stock_quantity').value);
+            
+            if (price <= 0) {
+                e.preventDefault();
+                alert('O preço deve ser maior que zero.');
+                document.getElementById('price').focus();
+                return false;
+            }
+            
+            if (stock < 0) {
+                e.preventDefault();
+                alert('O estoque não pode ser negativo.');
+                document.getElementById('stock_quantity').focus();
+                return false;
+            }
+            
+            // Adicionar loading
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+            submitBtn.disabled = true;
+            
+            // Se houver erro, restaurar botão
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        });
+
+        // Auto-resize textarea
+        document.getElementById('description').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
     </script>
 </body>

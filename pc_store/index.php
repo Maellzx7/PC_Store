@@ -423,7 +423,7 @@ try {
             <ul class="nav-links">
                 <li><a href="index.php">Início</a></li>
                 <li><a href="products.php">Produtos</a></li>
-                <li><a href="categories.php">Categorias</a></li>
+                <li><a href="#categorias">Categorias</a></li>
                 <li><a href="about.php">Sobre</a></li>
             </ul>
             
@@ -475,7 +475,7 @@ try {
         </section>
 
         <!-- Categories Section -->
-        <section class="categories">
+        <section class="categories" id="categorias">
             <div class="container">
                 <h2 class="section-title">Categorias</h2>
                 <div class="categories-grid">

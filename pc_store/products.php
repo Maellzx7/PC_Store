@@ -505,7 +505,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <ul class="nav-links">
                 <li><a href="index.php">Início</a></li>
                 <li><a href="products.php" style="color: #667eea;">Produtos</a></li>
-                <li><a href="categories.php">Categorias</a></li>
+                <li><a href="index.php#categorias">Categorias</a></li>
                 <li><a href="about.php">Sobre</a></li>
             </ul>
             
