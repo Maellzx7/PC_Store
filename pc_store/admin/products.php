@@ -999,6 +999,57 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
+
+        // Prévia da imagem
+        document.getElementById('image_url').addEventListener('input', function() {
+            const url = this.value.trim();
+            let previewContainer = document.getElementById('imagePreview');
+            
+            if (!previewContainer) {
+                previewContainer = document.createElement('div');
+                previewContainer.id = 'imagePreview';
+                previewContainer.style.cssText = `
+                    margin-top: 1rem;
+                    padding: 1rem;
+                    border: 2px dashed #e1e5e9;
+                    border-radius: 10px;
+                    text-align: center;
+                    background: #f8f9fa;
+                    display: none;
+                `;
+                this.parentNode.appendChild(previewContainer);
+            }
+            
+            if (url && isValidImageUrl(url)) {
+                showImagePreview(previewContainer, url);
+            } else {
+                hideImagePreview(previewContainer);
+            }
+        });
+
+        function isValidImageUrl(url) {
+            return /\.(jpg|jpeg|png|webp|gif)$/i.test(url) || url.includes('unsplash.com') || url.includes('images.');
+        }
+
+        function showImagePreview(container, url) {
+            container.innerHTML = `
+                <div style="margin-bottom: 1rem; color: #666;">
+                    <i class="fas fa-image"></i> Prévia da Imagem
+                </div>
+                <img src="${url}" alt="Prévia" 
+                     style="max-width: 200px; max-height: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                     onerror="this.parentElement.innerHTML='<div style=color:#e74c3c><i class=fas fa-exclamation-triangle></i> Erro ao carregar imagem</div>'">
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                    A imagem será exibida assim nos produtos
+                </div>
+            `;
+            container.style.display = 'block';
+        }
+
+        function hideImagePreview(container) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+        }
     </script>
 </body>
 </html>

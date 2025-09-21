@@ -28,7 +28,7 @@ if ($stmt->rowCount() === 0) {
 $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Buscar itens do pedido
-$query = "SELECT oi.*, p.name as product_name, p.description, c.name as category_name, u.name as seller_name
+$query = "SELECT oi.*, p.name as product_name, p.description, p.image_url, c.name as category_name, u.name as seller_name
           FROM order_items oi 
           INNER JOIN products p ON oi.product_id = p.id 
           LEFT JOIN categories c ON p.category_id = c.id
@@ -709,7 +709,14 @@ $current_status = $status_info[$order['status']];
                 <?php foreach ($order_items as $item): ?>
                     <div class="order-item">
                         <div class="item-image">
-                            <i class="fas fa-desktop"></i>
+                            <?php if (!empty($item['image_url'])): ?>
+                                <img src="<?= htmlspecialchars($item['image_url']) ?>" 
+                                     alt="<?= htmlspecialchars($item['product_name']) ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=fas fa-desktop style=font-size:2rem;color:white></i>';">
+                            <?php else: ?>
+                                <i class="fas fa-desktop"></i>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="item-details">
