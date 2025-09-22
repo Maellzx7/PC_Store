@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $database = new Database();
         $db = $database->getConnection();
         
-        // Verificar se o email já existe
         $query = "SELECT id FROM users WHERE email = :email";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':email', $email);
@@ -29,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->rowCount() > 0) {
             $error = 'Este e-mail já está cadastrado.';
         } else {
-            // Criar novo usuário
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             
             $query = "INSERT INTO users (name, email, password, user_type) VALUES (:name, :email, :password, 'user')";

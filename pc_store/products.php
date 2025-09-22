@@ -4,14 +4,12 @@ require_once 'config/database.php';
 $database = new Database();
 $db = $database->getConnection();
 
-// Parâmetros de filtro
 $category_filter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search = isset($_GET['search']) ? sanitize($_GET['search']) : '';
 $price_min = isset($_GET['price_min']) ? (float)$_GET['price_min'] : 0;
 $price_max = isset($_GET['price_max']) ? (float)$_GET['price_max'] : 99999;
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'name';
 
-// Construir query
 $where_conditions = ["p.status = 'active'"];
 $params = [];
 
@@ -35,7 +33,6 @@ if ($price_max < 99999) {
     $params[':price_max'] = $price_max;
 }
 
-// Ordenação
 $order_by = "p.name ASC";
 switch ($sort) {
     case 'price_asc':
@@ -51,7 +48,6 @@ switch ($sort) {
 
 $where_clause = implode(" AND ", $where_conditions);
 
-// Buscar produtos
 $query = "SELECT p.*, c.name as category_name, u.name as seller_name 
           FROM products p 
           LEFT JOIN categories c ON p.category_id = c.id 
@@ -66,7 +62,6 @@ foreach ($params as $key => $value) {
 $stmt->execute();
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Buscar categorias para filtro
 $query = "SELECT * FROM categories ORDER BY name";
 $stmt = $db->prepare($query);
 $stmt->execute();
@@ -100,7 +95,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 0 20px;
         }
 
-        /* Header */
         header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);

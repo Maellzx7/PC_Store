@@ -10,7 +10,6 @@ $product_id = (int)$_GET['id'];
 $database = new Database();
 $db = $database->getConnection();
 
-// Buscar produto
 $query = "SELECT p.*, c.name as category_name, u.name as seller_name 
           FROM products p 
           LEFT JOIN categories c ON p.category_id = c.id 
@@ -27,7 +26,6 @@ if ($stmt->rowCount() === 0) {
 
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Buscar produtos relacionados da mesma categoria
 $query = "SELECT p.*, c.name as category_name 
           FROM products p 
           LEFT JOIN categories c ON p.category_id = c.id 

@@ -7,7 +7,6 @@ $database = new Database();
 $db = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
-// Verificar se há itens no carrinho
 $query = "SELECT c.id as cart_id, c.quantity, p.id, p.name, p.price, p.stock_quantity, cat.name as category_name
           FROM cart c 
           INNER JOIN products p ON c.product_id = p.id 
@@ -24,7 +23,6 @@ if (empty($cart_items)) {
     exit();
 }
 
-// Calcular totais
 $subtotal = 0;
 $items_valid = true;
 $error_message = '';
@@ -44,7 +42,6 @@ $total = $subtotal + $shipping;
 $success = false;
 $order_id = null;
 
-// Processar pedido
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $items_valid) {
     $payment_method = sanitize($_POST['payment_method']);
     $address = sanitize($_POST['address']);
@@ -58,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $items_valid) {
         try {
             $db->beginTransaction();
             
-            // Criar pedido
             $query = "INSERT INTO orders (user_id, total_amount, status) VALUES (:user_id, :total_amount, 'pending')";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':user_id', $user_id);
@@ -67,9 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $items_valid) {
             
             $order_id = $db->lastInsertId();
             
-            // Adicionar itens do pedido e atualizar estoque
             foreach ($cart_items as $item) {
-                // Verificar estoque novamente
                 $query = "SELECT stock_quantity FROM products WHERE id = :product_id FOR UPDATE";
                 $stmt = $db->prepare($query);
                 $stmt->bindParam(':product_id', $item['id']);
@@ -80,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $items_valid) {
                     throw new Exception("Estoque insuficiente para {$item['name']}");
                 }
                 
-                // Adicionar item do pedido
                 $query = "INSERT INTO order_items (order_id, product_id, quantity, price) 
                           VALUES (:order_id, :product_id, :quantity, :price)";
                 $stmt = $db->prepare($query);
@@ -90,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $items_valid) {
                 $stmt->bindParam(':price', $item['price']);
                 $stmt->execute();
                 
-                // Atualizar estoque
                 $query = "UPDATE products SET stock_quantity = stock_quantity - :quantity WHERE id = :product_id";
                 $stmt = $db->prepare($query);
                 $stmt->bindParam(':quantity', $item['quantity']);
@@ -98,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $items_valid) {
                 $stmt->execute();
             }
             
-            // Limpar carrinho
             $query = "DELETE FROM cart WHERE user_id = :user_id";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':user_id', $user_id);

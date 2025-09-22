@@ -7,7 +7,6 @@ $database = new Database();
 $db = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
-// Processar ações do carrinho
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
@@ -43,13 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
         
-        // Redirecionar para evitar reenvio do form
         header('Location: cart.php');
         exit();
     }
 }
 
-// Buscar itens do carrinho
 $query = "SELECT c.id as cart_id, c.quantity, p.id, p.name, p.price, p.stock_quantity, cat.name as category_name
           FROM cart c 
           INNER JOIN products p ON c.product_id = p.id 
@@ -61,12 +58,11 @@ $stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
 $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calcular totais
 $subtotal = 0;
 foreach ($cart_items as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
-$shipping = $subtotal > 200 ? 0 : 15.00; // Frete grátis acima de R$ 200
+$shipping = $subtotal > 200 ? 0 : 15.00; 
 $total = $subtotal + $shipping;
 ?>
 

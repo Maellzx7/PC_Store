@@ -424,7 +424,7 @@ body {
                 <li><a href="sellers.php"><i class="fas fa-store"></i> Vendedores</a></li>
                 <li><a href="reports.php"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
                 <li><a href="settings.php"><i class="fas fa-cog"></i> Configurações</a></li>
-                
+                <li><a href="../index.php"><i class="fas fa-home"></i> Ver Loja</a></li>
             </ul>
             
             <div class="logout-section">

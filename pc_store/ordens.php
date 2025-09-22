@@ -7,14 +7,12 @@ $database = new Database();
 $db = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
-// Buscar pedidos do usuário
 $query = "SELECT * FROM orders WHERE user_id = :user_id ORDER BY created_at DESC";
 $stmt = $db->prepare($query);
 $stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Buscar itens de cada pedido
 $orders_with_items = [];
 foreach ($orders as $order) {
     $query = "SELECT oi.*, p.name as product_name, p.image_url 

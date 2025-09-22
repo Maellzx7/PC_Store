@@ -13,7 +13,6 @@ $user_id = $_SESSION['user_id'];
 $database = new Database();
 $db = $database->getConnection();
 
-// Buscar pedido (verificar se pertence ao usuário)
 $query = "SELECT * FROM orders WHERE id = :order_id AND user_id = :user_id";
 $stmt = $db->prepare($query);
 $stmt->bindParam(':order_id', $order_id);
@@ -27,7 +26,6 @@ if ($stmt->rowCount() === 0) {
 
 $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Buscar itens do pedido
 $query = "SELECT oi.*, p.name as product_name, p.description, p.image_url, c.name as category_name, u.name as seller_name
           FROM order_items oi 
           INNER JOIN products p ON oi.product_id = p.id 
@@ -40,24 +38,20 @@ $stmt->bindParam(':order_id', $order_id);
 $stmt->execute();
 $order_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Buscar dados do usuário
 $query = "SELECT name, email FROM users WHERE id = :user_id";
 $stmt = $db->prepare($query);
 $stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
 $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Calcular totais
 $subtotal = 0;
 foreach ($order_items as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
 
-// Estimar frete baseado no valor
 $shipping = $subtotal > 200 ? 0 : 15.00;
 $total = $order['total_amount'];
 
-// Status do pedido com informações
 $status_info = [
     'pending' => [
         'text' => 'Aguardando Pagamento',

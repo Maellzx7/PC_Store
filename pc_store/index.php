@@ -5,7 +5,6 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Buscar produtos em destaque
     $query = "SELECT p.*, c.name as category_name 
               FROM products p 
               LEFT JOIN categories c ON p.category_id = c.id 
@@ -16,7 +15,6 @@ try {
     $stmt->execute();
     $featured_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Buscar categorias
     $query = "SELECT * FROM categories ORDER BY name";
     $stmt = $db->prepare($query);
     $stmt->execute();
@@ -56,7 +54,6 @@ try {
             padding: 0 20px;
         }
 
-        /* Header */
         header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -542,7 +539,7 @@ try {
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 PC Store. Todos os direitos reservados.</p>
+            <p>&copy; 2025 PC Store. Todos os direitos reservados.</p>
         </div>
     </footer>
 
